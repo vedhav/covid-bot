@@ -13,8 +13,6 @@ from nltk.corpus import stopwords
 from slackeventsapi import SlackEventAdapter
 import requests
 
-r = requests.get('https://api.covid19india.org/data.json')
-body = r.json()
 
 # The bot id, so we can remove this from the response text
 bot_id = '<@U012HNV5J2D>'
@@ -25,6 +23,11 @@ slack_events_adapter = SlackEventAdapter(os.environ["SLACK_SIGNING_SECRET"], "/s
 
 # Initialize a Web API client
 slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
+
+def get_data():
+    r = requests.get('https://api.covid19india.org/data.json')
+    body = r.json()
+    return body
 
 def get_message_payload(channel_id, welcome_block):
     return {
@@ -104,6 +107,7 @@ def message(payload):
     print(event)
     channel_id = event.get("channel")
     command = preprocess_raw_text(event.get("text"))
+    body = get_data()
     if command.lower() == "all":
         allData = prepareAllAnswer(body, 0, "All States in India")
         print(allData)
